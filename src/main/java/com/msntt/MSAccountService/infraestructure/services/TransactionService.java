@@ -1,8 +1,8 @@
 package com.msntt.MSAccountService.infraestructure.services;
-import com.msntt.MSAccountService.application.exception.AccountNotCreatedException;
+import com.msntt.MSAccountService.application.exception.ResourceNotCreatedException;
 import com.msntt.MSAccountService.domain.beans.AccountOperationDTO;
 import com.msntt.MSAccountService.domain.beans.AccountTransferDTO;
-import com.msntt.MSAccountService.domain.entities.Transaction;
+import com.msntt.MSAccountService.domain.model.Transaction;
 import com.msntt.MSAccountService.domain.enums.TransactionType;
 import com.msntt.MSAccountService.domain.repository.AccountRepository;
 import com.msntt.MSAccountService.domain.repository.TransactionRepository;
@@ -20,105 +20,98 @@ import java.util.function.Function;
 @Service
 public class TransactionService implements ITransactionService {
 
-    //Attribute
+    //Services and Repositories
     @Autowired
     TransactionRepository trepository;
     @Autowired
     AccountRepository arepository;
     @Autowired
     AccountService accountService;
+
     //Crud
     @Override
     public Flux<Transaction> findAll() {
         // TODO Auto-generated method stub
         return null;
     }
-
     @Override
     public Mono<Transaction> delete(String id) {
         // TODO Auto-generated method stub
         return null;
     }
-
     @Override
     public Mono<Transaction> findById(String id) {
         // TODO Auto-generated method stub
         return null;
     }
-
     @Override
     public Mono<ResponseEntity<Transaction>> update(String id, Transaction request) {
         // TODO Auto-generated method stub
         return null;
     }
-
     @Override
     public Flux<Transaction> saveAll(List<Transaction> a) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    //Transaction
+    //Business Logic
     @Override
     public Mono<Transaction> doAccountDeposit(AccountOperationDTO dto) {
 
-        return accountService.findByAccountNumber(dto.getAccount()).flatMap (a -> {
+        return accountService.findById(dto.getAccount()).flatMap (a -> {
             a.setBalance(a.getBalance().add(dto.getAmount()));
             return arepository.save(a);
         })
+        .then(Mono.just(dto)
+                .flatMap(savedeposit))
+        .switchIfEmpty(Mono.error(new ResourceNotCreatedException()));
 
+    }
+    @Override
+    public Mono<Transaction> doAccountWithdrawal(AccountOperationDTO dto) {
 
-                .then(Mono.just(dto)
-                        .flatMap(savedeposit))
-                .switchIfEmpty(Mono.error(new AccountNotCreatedException()));
+        return accountService.findById(dto.getAccount()).then(Mono.just(dto)
+                        .flatMap(savewithdrawal))
+                .switchIfEmpty(Mono.error(new ResourceNotCreatedException()));
 
     }
     @Override
     public Mono<Transaction> TransferBetweenAccounts(AccountTransferDTO dto) {
-        return accountService.findByAccountNumber(dto.getFaccount())
+        return accountService.findById(dto.getFaccount())
                 .filter(r -> r.getCodeBusinessPartner().equals(dto.getFbp()))
                 .flatMap (a -> {
                     a.setBalance(a.getBalance().subtract(dto.getAmount()));
                     return arepository.save(a);})
-                .then(accountService.findByAccountNumber(dto.getTaccount())
+                .then(accountService.findById(dto.getTaccount())
                         .flatMap( a -> {
                                     a.setBalance(a.getBalance().add(dto.getAmount()));
                                     return arepository.save(a);})
                 .then(Mono.just(dto).flatMap(Savetransfertbtweenaccount)
 
-                        .switchIfEmpty(Mono.error(new AccountNotCreatedException()))));
+                        .switchIfEmpty(Mono.error(new ResourceNotCreatedException()))));
 
     }
-
-    @Override
-    public Mono<Transaction> doAccountWithdrawal(AccountOperationDTO dto) {
-
-        return accountService.findByAccountNumber(dto.getAccount()).then(Mono.just(dto)
-                        .flatMap(savewithdrawal))
-                .switchIfEmpty(Mono.error(new AccountNotCreatedException()));
-
-    }
-
     @Override
     public Mono<Transaction> doTransferToThirdParty(AccountTransferDTO dto) {
-        return accountService.findByAccountNumber(dto.getFaccount())
+        return accountService.findById(dto.getFaccount())
                 .filter(r -> r.getCodeBusinessPartner().equals(dto.getFbp()))
                 .flatMap (a -> {
                     a.setBalance(a.getBalance().subtract(dto.getAmount()));
                     return arepository.save(a);})
-                .then(accountService.findByAccountNumber(dto.getTaccount())
+                .then(accountService.findById(dto.getTaccount())
                         .flatMap( a -> {
                             a.setBalance(a.getBalance().add(dto.getAmount()));
                             return arepository.save(a);})
 
 
                         .then(Mono.just(dto).flatMap(saveTransferToThirdParty)
-                                .switchIfEmpty(Mono.error(new AccountNotCreatedException()))));
+                                .switchIfEmpty(Mono.error(new ResourceNotCreatedException()))));
 
 
     }
 
-    //Methods
+    //Functions
     private final Function<AccountOperationDTO, Mono<Transaction>> savedeposit = deposit -> {
 
         Transaction t;
@@ -147,14 +140,14 @@ public class TransactionService implements ITransactionService {
         accountService.updateBalanceWt(t.getToaccount(), t.getAmount());
         return _t;
     };
-   private final Function<AccountTransferDTO, Mono<Transaction>> Savetransfertbtweenaccount = transfer -> {
+    private final Function<AccountTransferDTO, Mono<Transaction>> Savetransfertbtweenaccount = transfer -> {
 
         Transaction t;
         String a = transfer.getFaccount();
         String b = transfer.getTaccount();
         if (a.equals(b))
         {
-            Mono.error(new AccountNotCreatedException());
+            Mono.error(new ResourceNotCreatedException());
         }
 
         Mono<Transaction> _t;
@@ -176,7 +169,7 @@ public class TransactionService implements ITransactionService {
         String b = transfer.getTaccount();
         if (a.equals(b))
         {
-            Mono.error(new AccountNotCreatedException());
+            Mono.error(new ResourceNotCreatedException());
         }
 
         Mono<Transaction> _t;

@@ -1,4 +1,4 @@
-package com.msntt.MSAccountService.domain.validation.account;
+package com.msntt.MSAccountService.domain.beanvalidation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -11,9 +11,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({ FIELD })
 @Retention(RUNTIME)
-@Constraint(validatedBy = IsTypeAccountValidator.class)
+@Constraint(validatedBy = ValidaccountholderValidator.class)
 @Documented
-public @interface IsTypeAccount {
+public @interface Validaccountholder {
 	String message() default "Type Account is no valid.";
 
 	Class<?>[] groups() default {};

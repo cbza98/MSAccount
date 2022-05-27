@@ -3,7 +3,7 @@ package com.msntt.MSAccountService.application.controller;
 import com.msntt.MSAccountService.domain.beans.CreateAccountDTO;
 import com.msntt.MSAccountService.domain.beans.HolderDTO;
 import com.msntt.MSAccountService.domain.beans.SignerDTO;
-import com.msntt.MSAccountService.domain.entities.Account;
+import com.msntt.MSAccountService.domain.model.Account;
 import com.msntt.MSAccountService.infraestructure.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/Account/AccountService")
+@RequestMapping("/Accounts/Entities/Account")
 public class AccountController {
 	@Autowired
 	private AccountService service;
@@ -36,21 +36,21 @@ public class AccountController {
 		Map<String, Object> response = new HashMap<>();
 
 		return request.flatMap(a -> service.createAccount(a).map(c -> {
-			response.put("Cuenta", c);
-			response.put("mensaje", "Cuenta creada con exito");
-			return ResponseEntity.created(URI.create("/api/Account/".concat(c.getAccountNumber())))
+			response.put("Account", c);
+			response.put("Message", "Account created Successfully");
+			return ResponseEntity.created(URI.create("/Accounts/Entities/Account/".concat(c.getAccountNumber())))
 					.contentType(MediaType.APPLICATION_JSON).body(response);
 		}));
 	}
 	@PostMapping("/SaveAll")
-	public Mono<ResponseEntity<Map<String, Object>>> saveBulk(@RequestBody Flux<Account> businessPartnerList) {
+	public Mono<ResponseEntity<Map<String, Object>>> saveAll(@RequestBody Flux<Account> businessPartnerList) {
 
 		Map<String, Object> response = new HashMap<>();
 
 		return businessPartnerList.collectList().flatMap(a -> service.saveAll(a).collectList()).map(c -> {
-			response.put("BusinessPartners", c);
-			response.put("mensaje", "Succesfull BusinessPartner Created");
-			return ResponseEntity.created(URI.create("/api/BusinessPartner/")).contentType(MediaType.APPLICATION_JSON)
+			response.put("Accounts", c);
+			response.put("Message", "Accounts Created Successfully");
+			return ResponseEntity.created(URI.create("/Accounts/Entities/Account/SaveAll")).contentType(MediaType.APPLICATION_JSON)
 					.body(response);
 		});
 	}
@@ -60,11 +60,11 @@ public class AccountController {
 
 		return service.delete(id)
 				.map(c -> {
-					response.put("BusinessPartner", c);
-					response.put("mensaje", "Succesfull BusinessPartner Deleted");
+					response.put("Account", c);
+					response.put("Message", "Accounts deleted successfully");
 					return ResponseEntity.ok()
 							.contentType(MediaType.APPLICATION_JSON)
-							.location( URI.create("/api/BusinessPartner/".concat(c.getAccountNumber())))
+							.location( URI.create("/Accounts/Entities/Account".concat(c.getAccountNumber())))
 							.body(response);
 				});
 	}
@@ -74,9 +74,9 @@ public class AccountController {
 		Map<String, Object> response = new HashMap<>();
 
 		return request.flatMap(a -> service.addHolder(a).map(c -> {
-			response.put("Cuenta", c);
-			response.put("mensaje", "Holder added successfully");
-			return ResponseEntity.created(URI.create("/api/Account/addHolder".concat(c.getAccountNumber())))
+			response.put("Account", c);
+			response.put("Message", "Holder added successfully");
+			return ResponseEntity.created(URI.create("/Accounts/Entities/Account/AddHolder".concat(c.getAccountNumber())))
 					.contentType(MediaType.APPLICATION_JSON).body(response);
 		}));
 	}
@@ -86,9 +86,9 @@ public class AccountController {
 		Map<String, Object> response = new HashMap<>();
 
 		return request.flatMap(a -> service.addSigner(a).map(c -> {
-			response.put("Cuenta", c);
-			response.put("mensaje", "Signer added successfully");
-			return ResponseEntity.created(URI.create("/api/Account/addSigner".concat(c.getAccountNumber())))
+			response.put("Account", c);
+			response.put("Message", "Signer added successfully");
+			return ResponseEntity.created(URI.create("/Accounts/Entities/Account/AddSigner".concat(c.getAccountNumber())))
 					.contentType(MediaType.APPLICATION_JSON).body(response);
 		}));
 	}

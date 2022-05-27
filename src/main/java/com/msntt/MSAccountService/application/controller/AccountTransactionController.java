@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/MsFundTransact/Actions/AccountTransactionService")
+@RequestMapping("/Accounts/Actions/AccountTransactionService")
 public class AccountTransactionController {
     @Autowired
     private TransactionService service;
@@ -28,7 +28,7 @@ public class AccountTransactionController {
         Map<String, Object> response = new HashMap<>();
 
         return request.flatMap(a -> service.doAccountDeposit(a).map(c -> {
-            response.put("Withdrawal", c);
+            response.put("Deposit", c);
             response.put("message", "Successful Deposit Transaction ");
             return ResponseEntity.created(URI.create("/MsFundTransact/Entities/Transaction/".concat(c.getTransactionId())))
                     .contentType(MediaType.APPLICATION_JSON).body(response);
@@ -46,7 +46,7 @@ public class AccountTransactionController {
                     .contentType(MediaType.APPLICATION_JSON).body(response);
         }));
     }
-    @PostMapping("/TransferSameHolder")
+    @PostMapping("/TransferToSameHolder")
     public Mono<ResponseEntity<Map<String, Object>>> TransferSameHolder(@Valid @RequestBody Mono<AccountTransferDTO> request) {
 
         Map<String, Object> response = new HashMap<>();

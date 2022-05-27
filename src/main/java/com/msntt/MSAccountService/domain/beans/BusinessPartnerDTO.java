@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 
 
 public class BusinessPartnerDTO {
-	private String codeBP;
+	private String businessPartnerId;
 	private String docType;
 	private String docNum;
 	private String name;

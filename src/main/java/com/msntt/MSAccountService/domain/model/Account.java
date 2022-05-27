@@ -1,4 +1,4 @@
-package com.msntt.MSAccountService.domain.entities;
+package com.msntt.MSAccountService.domain.model;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -34,6 +34,7 @@ public class Account{
 	private List<Signer> signers;
 
 	//account item fields
+	private String accountItemId;
 	@NotBlank
 	private String accountName;
 	@NotBlank

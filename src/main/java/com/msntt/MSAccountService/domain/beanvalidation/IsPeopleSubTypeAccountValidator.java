@@ -1,4 +1,4 @@
-package com.msntt.MSAccountService.domain.validation.account;
+package com.msntt.MSAccountService.domain.beanvalidation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

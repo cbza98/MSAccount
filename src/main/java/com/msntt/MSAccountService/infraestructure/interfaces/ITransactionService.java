@@ -2,7 +2,7 @@ package com.msntt.MSAccountService.infraestructure.interfaces;
 
 import com.msntt.MSAccountService.domain.beans.AccountOperationDTO;
 import com.msntt.MSAccountService.domain.beans.AccountTransferDTO;
-import com.msntt.MSAccountService.domain.entities.Transaction;
+import com.msntt.MSAccountService.domain.model.Transaction;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

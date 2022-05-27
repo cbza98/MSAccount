@@ -1,4 +1,4 @@
-package com.msntt.MSAccountService.domain.validation.account;
+package com.msntt.MSAccountService.domain.beanvalidation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -11,11 +11,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({ FIELD })
 @Retention(RUNTIME)
-@Constraint(validatedBy = IsCompanySubTypeAccountValidator.class)
+@Constraint(validatedBy = IsPeopleSubTypeAccountValidator.class)
 @Documented
-public @interface IsCompanySubTypeAccount {
+public @interface IsPeopleSubTypeAccount {
 	
-	String message() default "Subtype Company Account is no valid. Valid values PY - Pyme, STD - Standart";
+	String message() default "Subtype People Account is no valid. Valid values VI - Vip, STD - Standart";
 
 	Class<?>[] groups() default {};
 

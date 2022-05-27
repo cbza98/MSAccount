@@ -10,22 +10,18 @@ public class AccountGeneratorValues {
         SecureRandom value = new SecureRandom(); // Compliant for security-sensitive use cases
         byte[] bytes = new byte[20];
         value.nextBytes(bytes);
+
         // Generar dos valores en base a los tipos de cuenta
         int v1 = value.nextInt(10);
         int v2 = value.nextInt(10);
-        start.append(v1).append(v2).append(" ");
+        start.append(v1).append(v2);
 
-        int count = 0;
-        int n = 0;
+
+        int n;
         for (int i = 0; i < 12; i++) {
-            if (count == 4) {
-                start.append(" ");
-                count = 0;
-            } else
-                n = value.nextInt(10);
-            start.append(n);
-            count++;
 
+                n = value.nextInt(10);
+                start.append(n);
         }
         return start.toString();
     }

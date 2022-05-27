@@ -1,7 +1,7 @@
 package com.msntt.MSAccountService.application.handlers;
 
 
-import com.msntt.MSAccountService.application.exception.AccountNotCreatedException;
+import com.msntt.MSAccountService.application.exception.ResourceNotCreatedException;
 import com.msntt.MSAccountService.application.exception.EntityAlreadyExistsException;
 import com.msntt.MSAccountService.application.exception.EntityNotExistsException;
 import feign.FeignException;
@@ -59,13 +59,13 @@ public class GlobalExceptionHandler {
 		});
 	}
 	
-	@ExceptionHandler(AccountNotCreatedException.class)
-	public Mono<ResponseEntity<Map<String, Object>>> handlerException(AccountNotCreatedException ex) {
+	@ExceptionHandler(ResourceNotCreatedException.class)
+	public Mono<ResponseEntity<Map<String, Object>>> handlerException(ResourceNotCreatedException ex) {
 
 		Map<String, Object> response = new HashMap<>();
 
 		log.warn(MarkerFactory.getMarker("VALID"), ex.getMessage());
-		return Mono.just(ex).map(AccountNotCreatedException::getMessage).flatMap(msg -> {
+		return Mono.just(ex).map(ResourceNotCreatedException::getMessage).flatMap(msg -> {
 
 			response.put("errors", msg);
 			response.put("timestamp", new Date());

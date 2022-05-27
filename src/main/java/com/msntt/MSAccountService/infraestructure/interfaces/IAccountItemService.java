@@ -1,6 +1,6 @@
 package com.msntt.MSAccountService.infraestructure.interfaces;
 
-import com.msntt.MSAccountService.domain.entities.AccountItem;
+import com.msntt.MSAccountService.domain.model.AccountItem;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

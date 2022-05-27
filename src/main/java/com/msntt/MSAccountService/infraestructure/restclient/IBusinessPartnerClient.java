@@ -8,6 +8,6 @@ import reactor.core.publisher.Mono;
 
 @ReactiveFeignClient(value = "bp-service", url = "${bp.service.url}")
 public interface IBusinessPartnerClient {
-    @GetMapping("/{id}")
+    @GetMapping("/BusinessPartner/{id}")
     Mono<BusinessPartnerDTO> findById(@PathVariable("id") String id);
 }

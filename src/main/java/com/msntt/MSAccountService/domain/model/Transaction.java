@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.msntt.MSAccountService.domain.entities;
+package com.msntt.MSAccountService.domain.model;
 
 import com.msntt.MSAccountService.domain.enums.TransactionType;
 import lombok.*;

@@ -1,6 +1,6 @@
 package com.msntt.MSAccountService.application.exception;
 
-public class AccountNotCreatedException extends Exception {
+public class ResourceNotCreatedException extends Exception {
 
 	/**
 	 * 
@@ -9,11 +9,11 @@ public class AccountNotCreatedException extends Exception {
 	
 	private String message = "Account couldn't be created";
 	
-	public AccountNotCreatedException() {
+	public ResourceNotCreatedException() {
 
 	}
 
-	public AccountNotCreatedException(String message) {
+	public ResourceNotCreatedException(String message) {
 		this.message = message;
 	}
 

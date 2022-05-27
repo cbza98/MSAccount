@@ -2,7 +2,7 @@ package com.msntt.MSAccountService.infraestructure.services;
 
 import com.msntt.MSAccountService.application.exception.EntityAlreadyExistsException;
 import com.msntt.MSAccountService.application.exception.EntityNotExistsException;
-import com.msntt.MSAccountService.domain.entities.AccountItem;
+import com.msntt.MSAccountService.domain.model.AccountItem;
 import com.msntt.MSAccountService.domain.repository.AccountItemRepository;
 import com.msntt.MSAccountService.infraestructure.interfaces.IAccountItemService;
 import org.springframework.beans.factory.annotation.Autowired;

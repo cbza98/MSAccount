@@ -1,5 +1,5 @@
 package com.msntt.MSAccountService.application.controller;
-import com.msntt.MSAccountService.domain.entities.AccountItem;
+import com.msntt.MSAccountService.domain.model.AccountItem;
 import com.msntt.MSAccountService.infraestructure.interfaces.IAccountItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/MsFundTransact/Entities/AccountItem")
+@RequestMapping("/Accounts/Entities/AccountItem")
 public class AccountItemController {
     @Autowired
     private IAccountItemService service;
@@ -34,7 +34,7 @@ public class AccountItemController {
         return request.flatMap(a -> service.save(a).map(c -> {
             response.put("Item", c);
             response.put("message", "item successfully created");
-            return ResponseEntity.created(URI.create("/api/Account/".concat(c.getItemCode())))
+            return ResponseEntity.created(URI.create("/Accounts/Entities/AccountItem".concat(c.getItemCode())))
                     .contentType(MediaType.APPLICATION_JSON).body(response);
         }));
     }
@@ -48,7 +48,7 @@ public class AccountItemController {
                     response.put("message", "item successfully deleted");
                     return ResponseEntity.ok()
                             .contentType(MediaType.APPLICATION_JSON)
-                            .location( URI.create("/api/BusinessPartner/".concat(c.getItemCode())))
+                            .location( URI.create("/Accounts/Entities/AccountItem".concat(c.getItemCode())))
                             .body(response);
                 });
     }

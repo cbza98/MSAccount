@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/MsFundTransact/Entities/Transaction")
-public class TransactionController {
+@RequestMapping("/Accounts/Actions/DebitCardTransactionService")
+public class DebitCardTransactionController {
 
 }

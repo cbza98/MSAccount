@@ -1,4 +1,4 @@
-package com.msntt.MSAccountService.domain.entities;
+package com.msntt.MSAccountService.domain.model;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
