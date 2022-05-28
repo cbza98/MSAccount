@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 
-
 public class BusinessPartnerDTO {
 	private String businessPartnerId;
 	private String docType;

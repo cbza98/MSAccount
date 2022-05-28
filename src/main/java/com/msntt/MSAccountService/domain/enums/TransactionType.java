@@ -9,7 +9,8 @@ public enum TransactionType {
     CREDIT_CARD_PAYMENT("06"),
     CREDIT_CARD_CONSUMPTION("07"),
     CREDIT_CONSUMPTION("08"),
-    DEBIT_CARD_CONSUMPTION("09");
+    DEBIT_CARD_CONSUMPTION("09"),
+    DEBIT_CARD_WITHDRAWAL("10");
 
     public final String type;
 

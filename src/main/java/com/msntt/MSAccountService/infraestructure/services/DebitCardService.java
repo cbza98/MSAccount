@@ -136,10 +136,14 @@ public class DebitCardService implements IDebitCardService {
     private final BiFunction<AssociateAccountDTO,DebitCard, Mono<DebitCard>> saveAssociatedAccount=
             (associateAccountDTO,debitCard) -> {
                 List<LinkedAccount> lnkAcc = debitCard.getLinkedAccountList();
+                if(associateAccountDTO.getIsNewMainAccount()){
+                    lnkAcc.forEach(c->c.setIsMainAccount(false));
+                }
 
                 lnkAcc.add(LinkedAccount.builder()
                         .accountId(associateAccountDTO.getAccountId())
                         .addedDate(LocalDateTime.now())
+                        .isMainAccount(associateAccountDTO.getIsNewMainAccount())
                         .build());
 
                 debitCard.setLinkedAccountList(lnkAcc);

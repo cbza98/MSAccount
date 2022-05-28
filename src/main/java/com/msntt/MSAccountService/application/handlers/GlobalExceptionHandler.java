@@ -15,7 +15,7 @@ import org.springframework.web.bind.support.WebExchangeBindException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
 				.collectList().flatMap(list -> {
 
 					response.put("errors", list);
-					response.put("timestamp", new Date());
+					response.put("timestamp", LocalDateTime.now());
 					response.put("status", HttpStatus.BAD_REQUEST.value());
 
 					return Mono.just(ResponseEntity.badRequest().body(response));
@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
 		return Mono.just(ex).map(EntityAlreadyExistsException::getMessage).flatMap(msg -> {
 
 			response.put("errors", msg);
-			response.put("timestamp", new Date());
+			response.put("timestamp", LocalDateTime.now());
 			response.put("status", HttpStatus.BAD_REQUEST.value());
 
 			return Mono.just(ResponseEntity.badRequest().body(response));
@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
 		return Mono.just(ex).map(ResourceNotCreatedException::getMessage).flatMap(msg -> {
 
 			response.put("errors", msg);
-			response.put("timestamp", new Date());
+			response.put("timestamp", LocalDateTime.now());
 			response.put("status", HttpStatus.BAD_REQUEST.value());
 
 			return Mono.just(ResponseEntity.badRequest().body(response));
@@ -85,7 +85,7 @@ public class GlobalExceptionHandler {
 		return Mono.just(ex).map(EntityNotExistsException::getMessage).flatMap(msg -> {
 
 			response.put("errors", msg);
-			response.put("timestamp", new Date());
+			response.put("timestamp", LocalDateTime.now());
 			response.put("status", HttpStatus.BAD_REQUEST.value());
 
 			return Mono.just(ResponseEntity.badRequest().body(response));
@@ -103,7 +103,7 @@ public class GlobalExceptionHandler {
 		return Mono.just(ex).map(e-> {
 
 			response.put("errors", "business partner doesn't exists");
-			response.put("timestamp", new Date());
+			response.put("timestamp", LocalDateTime.now());
 			response.put("status", e.status());
 
 			return ResponseEntity.badRequest().body(response);
