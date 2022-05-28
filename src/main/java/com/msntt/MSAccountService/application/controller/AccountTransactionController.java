@@ -2,7 +2,7 @@ package com.msntt.MSAccountService.application.controller;
 
 import com.msntt.MSAccountService.domain.beans.AccountOperationDTO;
 import com.msntt.MSAccountService.domain.beans.AccountTransferDTO;
-import com.msntt.MSAccountService.infraestructure.services.TransactionService;
+import com.msntt.MSAccountService.infraestructure.services.AccountTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ import java.util.Map;
 @RequestMapping("/Accounts/Actions/AccountTransactionService")
 public class AccountTransactionController {
     @Autowired
-    private TransactionService service;
+    private AccountTransactionService service;
     @PostMapping("/Deposit")
     public Mono<ResponseEntity<Map<String, Object>>> deposit(@Valid @RequestBody Mono<AccountOperationDTO> request) {
 

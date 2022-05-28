@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface ITransactionService {
+public interface IAccountTransactionService {
 	
 	Flux<Transaction> findAll();
 	
@@ -28,4 +28,6 @@ public interface ITransactionService {
 	Mono<Transaction> TransferBetweenAccounts(AccountTransferDTO dto);
 	
 	Mono<Transaction> doTransferToThirdParty(AccountTransferDTO dto);
+
+	Mono<Long> countByAccountAndTransactionType(String accountNumber);
 }

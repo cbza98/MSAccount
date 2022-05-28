@@ -1,5 +1,6 @@
 package com.msntt.MSAccountService.domain.beans;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.validation.constraints.Digits;

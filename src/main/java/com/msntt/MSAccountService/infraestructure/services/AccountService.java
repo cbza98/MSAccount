@@ -11,21 +11,21 @@ import com.msntt.MSAccountService.domain.model.AccountItem;
 import com.msntt.MSAccountService.domain.repository.AccountRepository;
 import com.msntt.MSAccountService.infraestructure.interfaces.IAccountItemService;
 import com.msntt.MSAccountService.infraestructure.interfaces.IAccountService;
-import com.msntt.MSAccountService.infraestructure.restclient.ICreditCardClient;
+import com.msntt.MSAccountService.infraestructure.restclient.ICreditClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
+import reactor.util.function.Tuple5;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Service
@@ -40,7 +40,7 @@ public class AccountService implements IAccountService {
     @Autowired
     private IBusinessPartnerClient businessPartnerClient;
     @Autowired
-    private ICreditCardClient creditCardClient;
+    private ICreditClient creditCardClient;
 
     // Crud
     @Override
@@ -117,42 +117,59 @@ public class AccountService implements IAccountService {
                     return repository.save(account);
                 }).switchIfEmpty(Mono.error(ResourceNotCreatedException::new));
     }
+
     @Override
-    public Mono<Account> updateBalanceDp(String id, BigDecimal balance) {
+    public Mono<AvailableAmountDTO> getAvailableAmount(String accountNumber) {
+      return repository.findById(accountNumber)
+                .switchIfEmpty(Mono.error(new EntityNotExistsException("Account doesn't exists")))
+                .map(a->AvailableAmountDTO.builder()
+                            .businessPartnerId(a.getCodeBusinessPartner())
+                            .accountNumber(a.getAccountNumber())
+                            .availableAmount(a.getBalance()).build());
+    }
+
+    @Override
+    public Mono<Account> updateBalanceDeposit(String id, BigDecimal balance) {
         return repository.findById(id).flatMap(a ->
-                {
-                    a.setBalance(a.getBalance().add(balance));
+                {   BigDecimal bigDecimal=a.getBalance().add(balance);
+                    a.setBalance(bigDecimal);
                     return repository.save(a);
                 });
     }
     @Override
-    public Mono<Account> updateBalanceWt(String id, BigDecimal balance) {
-        return repository.findById(id).flatMap(a ->
-                {
-                    a.setBalance(a.getBalance().subtract(balance));
-                    return repository.save(a);
+    public Mono<Account> updateBalanceWithdrawal(String id, BigDecimal balance) {
+        return repository.findById(id).filter(a->balance.compareTo(a.getBalance())<=0)
+                .switchIfEmpty(Mono.error(new ResourceNotCreatedException("Withdrawal is more than actual balance")))
+                .flatMap(a -> { a.setBalance(a.getBalance().subtract(balance));
+                                return repository.save(a);
                 });
+
     }
+
+
     @Override
     public Mono<Account> createAccount(CreateAccountDTO account) {
 
         Mono<Long> count = repository.countByAccountItemIdAndCodeBusinessPartner(
                 account.getAccountCode(), account.getCodeBusinessPartner());
 
+        Mono<Long> creditCardCount= creditCardClient.countCreditCardsByBusinessPartner(account
+                .getCodeBusinessPartner());
+
         Mono<BusinessPartnerDTO> bsPartner = businessPartnerClient.findById(account.getCodeBusinessPartner());
 
         Mono<AccountItem> accountItem = itemService.findById(account.getAccountCode())
                 .switchIfEmpty(Mono.error(new EntityNotExistsException("Item doesn't exists")));
 
-        Mono<CreditCardCountDTO> creditCardCount= creditCardClient.countCreditCardsByBusinessPartner(account
-                .getCodeBusinessPartner());
+        Mono<Long> countExpiredDebts = creditCardClient.getExpiredDebts(account.getCodeBusinessPartner());
 
-        return Mono.zip(bsPartner, count, accountItem)
-                .map(t->{System.out.println(t.getT1().getBusinessPartnerId()); return t;})
-                //filter(hasExpiredDebt)
+        return Mono.zip(bsPartner, count, accountItem,creditCardCount,countExpiredDebts)
+                .filter(hasExpiredDebt)
+                .switchIfEmpty(Mono.error(new ResourceNotCreatedException("Business partner had expired debt")))
                 .filter(isBusinessPartnerAllowed)
                 .switchIfEmpty(Mono.error(new ResourceNotCreatedException("Business partner not allowed for this account")))
-                //.filter(creditCardValidation)
+                .filter(creditCardValidation)
+                .switchIfEmpty(Mono.error(new ResourceNotCreatedException("Credit Card required")))
                 .filter(validateLimitCreation)
                 .switchIfEmpty(Mono.error(new ResourceNotCreatedException("out of Limit of creation of accounts")))
                 .flatMap(t -> mapToAccountAndSave.apply(account, t.getT3()))
@@ -163,10 +180,11 @@ public class AccountService implements IAccountService {
     private final Predicate<Tuple3<BusinessPartnerDTO,Long,AccountItem>> isBusinessPartnerAllowed = t->
             t.getT3().getBusinessPartnerAllowed().contains(t.getT1().getBusinessPartnerId().substring(0,1));
 
-    private final Predicate<Tuple4<BusinessPartnerDTO,Long,AccountItem,CreditCardCountDTO>> creditCardValidation= t->
+    private final Predicate<Tuple4<BusinessPartnerDTO,Long,AccountItem,Long>> creditCardValidation= t->
            t.getT3().getCreditCardIsRequired().equals(false)
-               ||(t.getT3().getCreditCardIsRequired().equals(true) && t.getT4().getCreditCardCount()>0);
-
+               ||(t.getT3().getCreditCardIsRequired().equals(true) && t.getT4()>0);
+    private final Predicate<Tuple5<BusinessPartnerDTO,Long,AccountItem,Long,Long>> hasExpiredDebt= t->
+            t.getT5()==0L;
     private final Predicate<Tuple3<BusinessPartnerDTO,Long,AccountItem>> validateLimitCreation = t ->
             t.getT3().getLimitAccountsAllowed()>t.getT2()||t.getT3().getHasAccountsLimit().equals(false);
     private final BiFunction<CreateAccountDTO,AccountItem, Mono<Account>> mapToAccountAndSave = (account,accountItem) -> {
@@ -176,7 +194,7 @@ public class AccountService implements IAccountService {
                 .valid(true)
                 .balance(new BigDecimal("0.00"))
                 .codeBusinessPartner(account.getCodeBusinessPartner())
-                .date_Opened(new Date())
+                .date_Opened(LocalDateTime.now())
                 .accountItemId(accountItem.getItemCode())
                 .accountName(accountItem.getAccountName())
                 .accountType(accountItem.getAccountType())

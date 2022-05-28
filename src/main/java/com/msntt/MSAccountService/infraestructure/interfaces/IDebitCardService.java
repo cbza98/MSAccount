@@ -16,4 +16,6 @@ public interface IDebitCardService {
 
     Mono<DebitCard> associateAccount(AssociateAccountDTO accountDTO);
 
+    Mono<DebitCardBalanceDTO> getDebitCardBalance(String debitCardNumber);
+
 }

@@ -2,17 +2,15 @@ package com.msntt.MSAccountService.domain.beans;
 
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
-import java.util.List;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HolderDTO {
-    @NotBlank
+public class DebitCardBalanceDTO {
+    private String debitCardNumber;
     private String accountNumber;
-    @NotBlank
-    private String holderId;
+    private BigDecimal balance;
 }

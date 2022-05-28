@@ -8,6 +8,7 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class Account{
 	@Digits(integer =20, fraction=6)
 	private BigDecimal balance;
 	@NotNull
-	private Date date_Opened;
+	private LocalDateTime date_Opened;
 	@NotNull	
 	private Boolean valid;
 	private List<Holder> holders;

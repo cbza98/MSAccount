@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -27,7 +28,8 @@ public class Transaction {
     private TransactionType transactiontype;
     private String fromaccount;
     private String toaccount;
-    private Date createDate;
+    private String account;
+    private LocalDateTime createDate;
     @NotNull
     @Digits(integer =20, fraction=6)
     private BigDecimal amount;
@@ -41,8 +43,10 @@ public class Transaction {
     private BigDecimal balance;
     private Date transactionDate;
     private String creditcardId;
+    private String debitCardId;
     private String creditNumber;
     private String accountNumber;
+    private BigDecimal commissionAmount;
 
 	
 }

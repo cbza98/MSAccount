@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 @Getter
 @Setter
@@ -22,7 +23,7 @@ public class Credit {
     @NotNull
     private String codebusinesspartner;
     @JsonIgnore
-    private Date createdate;
+    private LocalDateTime createdate;
     @Digits(integer = 19,fraction = 6)
     private BigDecimal amountcredit;
     @Digits(integer = 19,fraction = 6)

@@ -12,12 +12,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountTransferDTO {
-    @NotBlank
-    private String fbp;
+
     @NotBlank
     private String faccount;
-    @NotBlank
-    private String tbp;
     @NotBlank
     private String taccount;
     @NotNull

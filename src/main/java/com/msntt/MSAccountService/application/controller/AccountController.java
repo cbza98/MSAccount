@@ -1,5 +1,6 @@
 package com.msntt.MSAccountService.application.controller;
 
+import com.msntt.MSAccountService.domain.beans.AvailableAmountDTO;
 import com.msntt.MSAccountService.domain.beans.CreateAccountDTO;
 import com.msntt.MSAccountService.domain.beans.HolderDTO;
 import com.msntt.MSAccountService.domain.beans.SignerDTO;
@@ -92,5 +93,8 @@ public class AccountController {
 					.contentType(MediaType.APPLICATION_JSON).body(response);
 		}));
 	}
-	
+	@GetMapping("/GetAvailableAmount/{id}")
+	public Mono<AvailableAmountDTO> getAvailableAmount(@PathVariable String id) {
+		return service.getAvailableAmount(id);
+	}
 }

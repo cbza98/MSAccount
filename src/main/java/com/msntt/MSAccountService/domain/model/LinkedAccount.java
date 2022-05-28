@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -15,5 +16,6 @@ import java.util.Date;
 public class LinkedAccount{
     @Id
     private String accountId;
-    private Date addedDate;
+    private LocalDateTime addedDate;
+    private Boolean isMainAccount;
 }

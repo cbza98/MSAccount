@@ -6,21 +6,27 @@ import com.msntt.MSAccountService.application.helpers.CardGeneratorValues;
 import com.msntt.MSAccountService.domain.beans.AssociateAccountDTO;
 import com.msntt.MSAccountService.domain.beans.BusinessPartnerDTO;
 import com.msntt.MSAccountService.domain.beans.CreateDebitCardDTO;
+import com.msntt.MSAccountService.domain.beans.DebitCardBalanceDTO;
 import com.msntt.MSAccountService.domain.model.Account;
+import com.msntt.MSAccountService.domain.model.AccountItem;
 import com.msntt.MSAccountService.domain.model.DebitCard;
 import com.msntt.MSAccountService.domain.model.LinkedAccount;
 import com.msntt.MSAccountService.domain.repository.DebitCardRepository;
 import com.msntt.MSAccountService.infraestructure.interfaces.IDebitCardService;
 import com.msntt.MSAccountService.infraestructure.restclient.IBusinessPartnerClient;
+import com.msntt.MSAccountService.infraestructure.restclient.ICreditClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple5;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 public class DebitCardService implements IDebitCardService {
@@ -30,6 +36,9 @@ public class DebitCardService implements IDebitCardService {
 
     @Autowired
     private IBusinessPartnerClient businessPartnerClient;
+
+    @Autowired
+    private ICreditClient creditCardClient;
 
     @Autowired
     private AccountService accountService;
@@ -47,12 +56,14 @@ public class DebitCardService implements IDebitCardService {
         Mono<Account> account = accountService.findById(debitCardDTO.getAccountNumber())
                                     .switchIfEmpty(Mono.error(new EntityNotExistsException("Account doesn't exists")));
 
-        return  bpDTO.zipWith(account)
-                .filter(a->a.getT2().getCodeBusinessPartner().equals(a.getT1().getBusinessPartnerId()))
+        Mono<Long> countExpiredDebt =creditCardClient.getExpiredDebts(debitCardDTO.getCodeBusinessPartner());
+
+        return   Mono.zip(countExpiredDebt,bpDTO,account,Mono.just(debitCardDTO))
+                .filter(t-> t.getT1() ==0L)
+                .switchIfEmpty(Mono.error(new ResourceNotCreatedException("Business partner had expired debt")))
+                .filter(a->a.getT3().getCodeBusinessPartner().equals(a.getT2().getBusinessPartnerId()))
                 .switchIfEmpty(Mono.error(new EntityNotExistsException("Account Holder doesn't match with client id")))
-                .then(Mono.just(debitCardDTO))
-                //.flatMap(ai->validateLimitCreation.apply(account,ai)) puede crear algun producto? por si tiene deuda
-                .flatMap(mapToDebitCardAndSave)
+                .flatMap(f->mapToDebitCardAndSave.apply(f.getT4()))
                 .switchIfEmpty(Mono.error(ResourceNotCreatedException::new));
     }
 
@@ -88,12 +99,24 @@ public class DebitCardService implements IDebitCardService {
 
     }
 
+    public Mono<DebitCardBalanceDTO> getDebitCardBalance(String debitCardNumber){
 
+        Mono<DebitCard> debitCard = repository.findById(debitCardNumber)
+                .switchIfEmpty(Mono.error(new EntityNotExistsException("Debit doesn't exists")));
+
+        return debitCard.map(DebitCard::getLinkedAccountList)
+                .flatMap(getMainAccount).map(
+                        a->DebitCardBalanceDTO.builder()
+                                    .debitCardNumber(debitCardNumber)
+                                    .accountNumber(a.getAccountNumber())
+                                    .balance(a.getBalance()).build());
+    }
     private final Function<CreateDebitCardDTO, Mono<DebitCard>> mapToDebitCardAndSave = debitCardDto -> {
 
         LinkedAccount linkedAccount= LinkedAccount.builder()
                                         .accountId(debitCardDto.getAccountNumber())
-                                        .addedDate(new Date())
+                                        .addedDate(LocalDateTime.now())
+                                        .isMainAccount(true)
                                         .build();
 
         DebitCard a = DebitCard.builder()
@@ -102,7 +125,7 @@ public class DebitCardService implements IDebitCardService {
                 .expiringDate(CardGeneratorValues.CardExpiringDateGenerate())
                 .codeBusinessPartner(debitCardDto.getCodeBusinessPartner())
                 .cvv(CardGeneratorValues.CardCVVGenerate())
-                .createdate(new Date())
+                .createdate(LocalDateTime.now())
                 .cardName("Debit Card VISA")
                 .linkedAccountList(List.of(linkedAccount)).build();
 
@@ -116,10 +139,18 @@ public class DebitCardService implements IDebitCardService {
 
                 lnkAcc.add(LinkedAccount.builder()
                         .accountId(associateAccountDTO.getAccountId())
-                        .addedDate(new Date())
+                        .addedDate(LocalDateTime.now())
                         .build());
 
                 debitCard.setLinkedAccountList(lnkAcc);
                 return repository.save(debitCard);
             };
+
+    private final Function<List<LinkedAccount>,Mono<Account>> getMainAccount = f->{
+
+        LinkedAccount lnk = f.stream().filter(LinkedAccount::getIsMainAccount)
+                .findAny().orElseThrow();
+
+        return accountService.findById(lnk.getAccountId());
+    };
 }

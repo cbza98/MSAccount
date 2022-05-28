@@ -2,6 +2,7 @@ package com.msntt.MSAccountService.application.controller;
 
 import com.msntt.MSAccountService.domain.beans.AssociateAccountDTO;
 import com.msntt.MSAccountService.domain.beans.CreateDebitCardDTO;
+import com.msntt.MSAccountService.domain.beans.DebitCardBalanceDTO;
 import com.msntt.MSAccountService.domain.beans.HolderDTO;
 import com.msntt.MSAccountService.domain.model.Account;
 import com.msntt.MSAccountService.domain.model.DebitCard;
@@ -70,6 +71,9 @@ public class DebitCardController {
                     .contentType(MediaType.APPLICATION_JSON).body(response);
         }));
     }
-
+    @GetMapping("/GetDebitCardBalance/{id}")
+    public Mono<DebitCardBalanceDTO>getDebitCardBalance(@PathVariable String id) {
+        return debitCardService.getDebitCardBalance(id);
+    }
 
 }

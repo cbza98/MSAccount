@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class DebitCard {
     @NotNull
     private Boolean valid;
     @NotNull
-    private Date createdate;
+    private LocalDateTime createdate;
     @NotNull
     private String codeBusinessPartner;
 }
