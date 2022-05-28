@@ -1,11 +1,13 @@
 package com.msntt.MSAccountService.domain.repository;
 
 
+import com.msntt.MSAccountService.domain.beans.FeeCharged;
 import com.msntt.MSAccountService.domain.model.Transaction;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 
@@ -16,8 +18,12 @@ public interface TransactionRepository extends ReactiveMongoRepository<Transacti
                                                                       Collection<String> tType,
                                                                       LocalDate startDate,
                                                                       LocalDate endDate);
-    Mono<Long> countByCreateDateBetween(LocalDate startDay, LocalDate endDate);
-    Flux<Transaction> findByAccountNumberAndCreateDateBetween(String accountId,
-                                                              LocalDate startDate,
-                                                              LocalDate endDate);
+    Flux<Transaction> findByDebitCardIdOrderByCreateDateDesc(String debitCardNumber);
+
+    Flux<FeeCharged> findByAccountAndCreateDateBetweenAndCommissionAmountGreaterThan(String accountNumber,
+                                                                                     LocalDate startDate,
+                                                                                     LocalDate endDat,
+                                                                                     BigDecimal limit);
+
+
 }

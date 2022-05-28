@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple5;
 
 import java.time.LocalDateTime;
@@ -95,7 +96,7 @@ public class DebitCardService implements IDebitCardService {
                             .stream().noneMatch(h -> h.getAccountId()
                                                    .equals(associateAccountDTO.getAccountId())))
                 .switchIfEmpty(Mono.error(new ResourceNotCreatedException("Account already linked to debit card")))
-                .flatMap(a->saveAssociatedAccount.apply(associateAccountDTO,a.getT2()));
+                .flatMap(a->saveAssociatedAccount.apply(a,associateAccountDTO));
 
     }
 
@@ -133,21 +134,22 @@ public class DebitCardService implements IDebitCardService {
 
     };
 
-    private final BiFunction<AssociateAccountDTO,DebitCard, Mono<DebitCard>> saveAssociatedAccount=
-            (associateAccountDTO,debitCard) -> {
-                List<LinkedAccount> lnkAcc = debitCard.getLinkedAccountList();
-                if(associateAccountDTO.getIsNewMainAccount()){
+    private final BiFunction<Tuple2<Account,DebitCard>,AssociateAccountDTO, Mono<DebitCard>> saveAssociatedAccount=
+            (t,dto) -> {
+                List<LinkedAccount> lnkAcc = t.getT2().getLinkedAccountList();
+                if(dto.getIsNewMainAccount()){
                     lnkAcc.forEach(c->c.setIsMainAccount(false));
                 }
 
                 lnkAcc.add(LinkedAccount.builder()
-                        .accountId(associateAccountDTO.getAccountId())
+                        .accountId(dto.getAccountId())
                         .addedDate(LocalDateTime.now())
-                        .isMainAccount(associateAccountDTO.getIsNewMainAccount())
+                        .isMainAccount(dto.getIsNewMainAccount())
                         .build());
 
-                debitCard.setLinkedAccountList(lnkAcc);
-                return repository.save(debitCard);
+                t.getT2().setLinkedAccountList(lnkAcc);
+                t.getT1().setDebitCardLinkDate(LocalDateTime.now());
+                return accountService.update(t.getT1()).then(repository.save(t.getT2()));
             };
 
     private final Function<List<LinkedAccount>,Mono<Account>> getMainAccount = f->{

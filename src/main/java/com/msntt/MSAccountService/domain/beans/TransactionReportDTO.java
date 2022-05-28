@@ -19,4 +19,5 @@ public class TransactionReportDTO {
     private BigDecimal debit;
     @Digits(integer =20, fraction=6)
     private BigDecimal credit;
+    private BigDecimal commissionAmount;
 }

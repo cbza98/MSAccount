@@ -18,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Document
+@ToString
 public class Account{
 
 	//account field
@@ -54,5 +55,6 @@ public class Account{
 	private Boolean moreHoldersAreAllowed;
 	private Boolean signersAreAllowed;
 	private Boolean hasAccountsLimit;
+	private LocalDateTime debitCardLinkDate;
 
 }

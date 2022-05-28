@@ -24,9 +24,7 @@ public class ReportService implements IReportService {
     @Override
     public Mono<ChargedFeesReportDTO> getAccountChargedFees(String accountNumber, LocalDate startDate,
                                                             LocalDate endDate){
-        /*
-        return transactionRepository.findByAccountNumberAndCreateDateBetween(accountNumber,startDate,endDate)
-                .collectList().flatMapMany();*/return null;
+            return null;
     }
     @Override
     public Mono<DebitCardReportDTO> getDebitCardReport(String debitCardNumber) {

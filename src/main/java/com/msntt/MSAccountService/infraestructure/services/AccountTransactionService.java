@@ -120,7 +120,6 @@ public class AccountTransactionService implements IAccountTransactionService {
                 .switchIfEmpty(Mono.error(new ResourceNotCreatedException("Transaction error")));
 
     }
-
     @Override
     public Mono<Long> countByAccountAndTransactionType(String accountNumber) {
 

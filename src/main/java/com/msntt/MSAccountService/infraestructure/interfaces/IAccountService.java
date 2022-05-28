@@ -6,6 +6,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 
 public interface IAccountService {
@@ -15,6 +16,7 @@ public interface IAccountService {
 	Mono<Account> findById(String id);
 	Flux<Account> saveAll(List<Account> a);
 	Mono<Account> update(Account request);
+	Flux<Account> findAllAccountsIn(Collection<String> accounts);
 	Mono<Account> updateBalanceDeposit(String id, BigDecimal balance);
 	Mono<Account> updateBalanceWithdrawal(String id, BigDecimal balance);
 	Mono<Account> addHolder(HolderDTO holder);

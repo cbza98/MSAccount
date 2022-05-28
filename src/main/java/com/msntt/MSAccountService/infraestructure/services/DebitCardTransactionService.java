@@ -71,13 +71,14 @@ public class DebitCardTransactionService implements IDebitCardTransactionService
 
         Transaction t = Transaction.builder()
                 .debit(dto.getAmount())
+                .credit(BigDecimal.ZERO)
                 .account(a.getAccountNumber())
                 .debitCardId(dto.getDebiCardNumber())
                 .transactiontype(TransactionType.DEBIT_CARD_CONSUMPTION)
                 .commissionAmount(BigDecimal.ZERO)
                 .createDate(LocalDateTime.now()).build();
 
-        return accountService.updateBalanceWithdrawal(t.getAccount(), t.getAmount())
+        return accountService.updateBalanceWithdrawal(t.getAccount(), dto.getAmount())
                 .then(transactionRepository.save(t));
     };
 
@@ -91,7 +92,7 @@ public class DebitCardTransactionService implements IDebitCardTransactionService
                 .commissionAmount(BigDecimal.ZERO)
                 .createDate(LocalDateTime.now()).build();
 
-        return accountService.updateBalanceWithdrawal(t.getAccount(), t.getAmount())
+        return accountService.updateBalanceWithdrawal(t.getAccount(), dto.getAmount())
                 .then(transactionRepository.save(t));
     };
 

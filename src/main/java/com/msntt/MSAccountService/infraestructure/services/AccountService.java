@@ -23,6 +23,7 @@ import reactor.util.function.Tuple5;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -72,8 +73,13 @@ public class AccountService implements IAccountService {
             a.setCodeBusinessPartner(_request.getCodeBusinessPartner());
             a.setDate_Opened(_request.getDate_Opened());
             a.setValid(_request.getValid());
+            a.setDebitCardLinkDate(_request.getDebitCardLinkDate());
             return repository.save(a);
         }).switchIfEmpty(Mono.error(new EntityNotExistsException()));
+    }
+    public Flux<Account> findAllAccountsIn(Collection<String> accounts){
+       //return repository.findByAccountNumberIn(accounts);
+        return null;
     }
 
     //Business Logic
@@ -211,6 +217,7 @@ public class AccountService implements IAccountService {
                 .hasAccountsLimit(accountItem.getHasAccountsLimit())
                 .holders(new ArrayList<>())
                 .signers(new ArrayList<>())
+                .debitCardLinkDate(LocalDateTime.now())
                 .build();
         return repository.save(a);
     };
