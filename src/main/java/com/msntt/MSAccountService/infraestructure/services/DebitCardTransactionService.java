@@ -4,10 +4,7 @@ import com.msntt.MSAccountService.application.exception.EntityNotExistsException
 import com.msntt.MSAccountService.application.exception.ResourceNotCreatedException;
 import com.msntt.MSAccountService.domain.beans.DebitCardOperationDTO;
 import com.msntt.MSAccountService.domain.enums.TransactionType;
-import com.msntt.MSAccountService.domain.model.Account;
-import com.msntt.MSAccountService.domain.model.DebitCard;
-import com.msntt.MSAccountService.domain.model.LinkedAccount;
-import com.msntt.MSAccountService.domain.model.Transaction;
+import com.msntt.MSAccountService.domain.model.*;
 import com.msntt.MSAccountService.domain.repository.DebitCardRepository;
 import com.msntt.MSAccountService.domain.repository.TransactionRepository;
 import com.msntt.MSAccountService.infraestructure.interfaces.IDebitCardTransactionService;
@@ -19,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 @Service
 public class DebitCardTransactionService implements IDebitCardTransactionService {
@@ -28,6 +26,8 @@ public class DebitCardTransactionService implements IDebitCardTransactionService
     private TransactionRepository transactionRepository;
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private YankiConsumer yankiConsumer;
 
     @Override
     public Mono<Transaction> doDebitCardPayment(DebitCardOperationDTO operationDTO) {
@@ -79,6 +79,15 @@ public class DebitCardTransactionService implements IDebitCardTransactionService
                 .createDate(LocalDateTime.now()).build();
 
         return accountService.updateBalanceWithdrawal(t.getAccount(), dto.getAmount())
+                .doOnSuccess(r->
+                {
+                    Message M = Message.builder()
+                            .amount(t.getDebit())
+                            .referencia1(dto.getDebiCardNumber())
+                            .referencia2(String.valueOf(t.getTransactiontype()))
+                            .build();
+                    yankiConsumer.sendMessage(M);
+                })
                 .then(transactionRepository.save(t));
     };
 
@@ -93,6 +102,15 @@ public class DebitCardTransactionService implements IDebitCardTransactionService
                 .createDate(LocalDateTime.now()).build();
 
         return accountService.updateBalanceWithdrawal(t.getAccount(), dto.getAmount())
+                .doOnSuccess(r->
+                {
+                    Message M = Message.builder()
+                            .amount(t.getDebit())
+                            .referencia1(dto.getDebiCardNumber())
+                            .referencia2(String.valueOf(t.getTransactiontype()))
+                            .build();
+                    yankiConsumer.sendMessage(M);
+                })
                 .then(transactionRepository.save(t));
     };
 

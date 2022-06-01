@@ -17,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Document
+@ToString
 public class DebitCard {
 
     @Id
@@ -24,6 +25,7 @@ public class DebitCard {
     @NotNull
     private String cardName;
     private String expiringDate;
+    private String defaultaccount;
     List<LinkedAccount> linkedAccountList;
     @NotNull
     private String cvv;

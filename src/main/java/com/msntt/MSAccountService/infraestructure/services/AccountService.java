@@ -3,11 +3,8 @@ import com.msntt.MSAccountService.application.exception.ResourceNotCreatedExcept
 import com.msntt.MSAccountService.application.exception.EntityNotExistsException;
 import com.msntt.MSAccountService.application.helpers.AccountGeneratorValues;
 import com.msntt.MSAccountService.domain.beans.*;
-import com.msntt.MSAccountService.domain.model.Holder;
-import com.msntt.MSAccountService.domain.model.Signer;
+import com.msntt.MSAccountService.domain.model.*;
 import com.msntt.MSAccountService.infraestructure.restclient.IBusinessPartnerClient;
-import com.msntt.MSAccountService.domain.model.Account;
-import com.msntt.MSAccountService.domain.model.AccountItem;
 import com.msntt.MSAccountService.domain.repository.AccountRepository;
 import com.msntt.MSAccountService.infraestructure.interfaces.IAccountItemService;
 import com.msntt.MSAccountService.infraestructure.interfaces.IAccountService;
@@ -147,6 +144,7 @@ public class AccountService implements IAccountService {
         return repository.findById(id).filter(a->balance.compareTo(a.getBalance())<=0)
                 .switchIfEmpty(Mono.error(new ResourceNotCreatedException("Withdrawal is more than actual balance")))
                 .flatMap(a -> { a.setBalance(a.getBalance().subtract(balance));
+
                                 return repository.save(a);
                 });
 

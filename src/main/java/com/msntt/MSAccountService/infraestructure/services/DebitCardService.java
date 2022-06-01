@@ -3,38 +3,36 @@ package com.msntt.MSAccountService.infraestructure.services;
 import com.msntt.MSAccountService.application.exception.ResourceNotCreatedException;
 import com.msntt.MSAccountService.application.exception.EntityNotExistsException;
 import com.msntt.MSAccountService.application.helpers.CardGeneratorValues;
-import com.msntt.MSAccountService.domain.beans.AssociateAccountDTO;
-import com.msntt.MSAccountService.domain.beans.BusinessPartnerDTO;
-import com.msntt.MSAccountService.domain.beans.CreateDebitCardDTO;
-import com.msntt.MSAccountService.domain.beans.DebitCardBalanceDTO;
+import com.msntt.MSAccountService.domain.beans.*;
 import com.msntt.MSAccountService.domain.model.Account;
-import com.msntt.MSAccountService.domain.model.AccountItem;
 import com.msntt.MSAccountService.domain.model.DebitCard;
 import com.msntt.MSAccountService.domain.model.LinkedAccount;
+import com.msntt.MSAccountService.domain.model.Message;
 import com.msntt.MSAccountService.domain.repository.DebitCardRepository;
 import com.msntt.MSAccountService.infraestructure.interfaces.IDebitCardService;
 import com.msntt.MSAccountService.infraestructure.restclient.IBusinessPartnerClient;
 import com.msntt.MSAccountService.infraestructure.restclient.ICreditClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
-import reactor.util.function.Tuple5;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
+@Slf4j
 @Service
 public class DebitCardService implements IDebitCardService {
 
     @Autowired
     private DebitCardRepository repository;
-
+    @Autowired
+    private YankiConsumer yankiConsumer;
     @Autowired
     private IBusinessPartnerClient businessPartnerClient;
 
@@ -123,6 +121,7 @@ public class DebitCardService implements IDebitCardService {
         DebitCard a = DebitCard.builder()
                 .cardNumber(CardGeneratorValues.CardNumberGenerate())
                 .valid(true)
+                .defaultaccount(debitCardDto.getAccountNumber())
                 .expiringDate(CardGeneratorValues.CardExpiringDateGenerate())
                 .codeBusinessPartner(debitCardDto.getCodeBusinessPartner())
                 .cvv(CardGeneratorValues.CardCVVGenerate())
@@ -130,6 +129,11 @@ public class DebitCardService implements IDebitCardService {
                 .cardName("Debit Card VISA")
                 .linkedAccountList(List.of(linkedAccount)).build();
 
+        Message M = Message.builder()
+                .amount(BigDecimal.valueOf(35.50))
+                .referencia1(a.getCardNumber())
+                .build();
+        yankiConsumer.sendMessage(M);
         return repository.save(a);
 
     };
@@ -151,7 +155,6 @@ public class DebitCardService implements IDebitCardService {
                 t.getT1().setDebitCardLinkDate(LocalDateTime.now());
                 return accountService.update(t.getT1()).then(repository.save(t.getT2()));
             };
-
     private final Function<List<LinkedAccount>,Mono<Account>> getMainAccount = f->{
 
         LinkedAccount lnk = f.stream().filter(LinkedAccount::getIsMainAccount)
@@ -159,4 +162,5 @@ public class DebitCardService implements IDebitCardService {
 
         return accountService.findById(lnk.getAccountId());
     };
+
 }

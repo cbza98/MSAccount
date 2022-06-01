@@ -7,6 +7,7 @@ import com.msntt.MSAccountService.domain.beans.HolderDTO;
 import com.msntt.MSAccountService.domain.model.Account;
 import com.msntt.MSAccountService.domain.model.DebitCard;
 import com.msntt.MSAccountService.infraestructure.interfaces.IDebitCardService;
+import com.msntt.MSAccountService.infraestructure.services.DebitCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ import java.util.Map;
 @RequestMapping("/Accounts/Entities/DebitCard")
 public class DebitCardController {
     @Autowired
-    private IDebitCardService debitCardService;
+    private DebitCardService debitCardService;
     @GetMapping
     public Mono<ResponseEntity<Flux<DebitCard>>> findAll() {
         return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(debitCardService.findAll()));

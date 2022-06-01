@@ -3,6 +3,7 @@ package com.msntt.MSAccountService.application.controller;
 
 import com.msntt.MSAccountService.domain.beans.DebitCardOperationDTO;
 import com.msntt.MSAccountService.infraestructure.interfaces.IDebitCardTransactionService;
+import com.msntt.MSAccountService.infraestructure.services.DebitCardTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ import java.util.Map;
 public class DebitCardTransactionController {
 
     @Autowired
-    private IDebitCardTransactionService service;
+    private DebitCardTransactionService service;
     @PostMapping("/Payment")
     public Mono<ResponseEntity<Map<String, Object>>> payment(@Valid @RequestBody Mono<DebitCardOperationDTO> request) {
 
